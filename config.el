@@ -184,8 +184,7 @@
 
 (after! ispell
   (setq ispell-program-name "aspell"
-        ispell-dictionary "en"
-        ispell-personal-dictionary (concat doom-user-dir "personal-dict.txt")))
+        ispell-dictionary "en"))
 
 (after! spell-fu
   (setq spell-fu-idle-delay 0.5)
