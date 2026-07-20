@@ -1,6 +1,6 @@
-(setq doom-font (font-spec :family "Overpass Nerd Font" :height 120)
+(setq doom-font (font-spec :family "Cozette" :weight 'medium :height 120)
       doom-big-font (font-spec :family "Overpass Nerd Font" :height 140)
-      doom-variable-pitch-font (font-spec :family "NotoSans Nerd Font" :height 1.2))
+      doom-variable-pitch-font (font-spec :family "Overpass Nerd Font" :height 1.2))
 
 (setq doom-theme 'doom-nebula-blue)
 
@@ -16,11 +16,11 @@
 
 (setq org-directory "~/Dropbox/org-notes/")
 
-(when (member "Overpass Nerd Font" (font-family-list))
+(when (member "Cozette" (font-family-list))
   (set-face-attribute 'default nil :font "Overpass Nerd Font" :height 100)
-  (set-face-attribute 'fixed-pitch nil :family "Overpass Nerd Font"))
-(when (member "Tinos Nerd Font" (font-family-list))
-  (set-face-attribute 'variable-pitch nil :family "NotoSans Nerd Font" :height 1.2))
+  (set-face-attribute 'fixed-pitch nil :family "Cozette" :weight 'medium))
+(when (member "Overpass Nerd Font" (font-family-list))
+  (set-face-attribute 'variable-pitch nil :family "Overpass Nerd Font" :height 1.2))
 
 (after! org
   (global-org-modern-mode)

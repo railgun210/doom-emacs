@@ -15,11 +15,11 @@ Much thanks to Sophie Bosio, so much of this config comes straight out of her Pr
 *** Fonts
 I use these fonts for everything:
 Sans serif font: ~Overpass Nerd Font~
-General Use Font: ~NotoSans Nerd Font~
+Programming Font: ~Cozette~
 #+BEGIN_SRC emacs-lisp :tangle config.el
-(setq doom-font (font-spec :family "Overpass Nerd Font" :height 120)
+(setq doom-font (font-spec :family "Cozette" :weight 'medium :height 120)
       doom-big-font (font-spec :family "Overpass Nerd Font" :height 140)
-      doom-variable-pitch-font (font-spec :family "NotoSans Nerd Font" :height 1.2))
+      doom-variable-pitch-font (font-spec :family "Overpass Nerd Font" :height 1.2))
 #+END_SRC
 *** Themes
 I use Everforest hard light most of the time, unless I get sick of it then I just use Doom one.
@@ -59,11 +59,11 @@ If you do this correctly and use git to synchronize everything for your doom ema
 *** Org Mode Font Settings
     This sets the font for org mode
 #+BEGIN_SRC emacs-lisp :tangle config.el
-(when (member "Overpass Nerd Font" (font-family-list))
+(when (member "Cozette" (font-family-list))
   (set-face-attribute 'default nil :font "Overpass Nerd Font" :height 100)
-  (set-face-attribute 'fixed-pitch nil :family "Overpass Nerd Font"))
-(when (member "Tinos Nerd Font" (font-family-list))
-  (set-face-attribute 'variable-pitch nil :family "NotoSans Nerd Font" :height 1.2))
+  (set-face-attribute 'fixed-pitch nil :family "Cozette"))
+(when (member "Overpass Nerd Font" (font-family-list))
+  (set-face-attribute 'variable-pitch nil :family "Overpass Nerd Font" :height 1.2))
 #+END_SRC
 *** Org Mode General Settings
 **** Bullet Settings
