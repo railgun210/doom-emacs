@@ -15,15 +15,17 @@ Much thanks to Sophie Bosio, so much of this config comes straight out of her Pr
 *** Fonts
 I use these fonts for everything:
 Sans serif font: ~Overpass Nerd Font~
-General Use Font: ~CozetteVector~
+Programming Font: ~Cozette~
 #+BEGIN_SRC emacs-lisp :tangle config.el
-(setq doom-font (font-spec :family "Overpass Nerd Font" :height 120)
+(setq doom-font (font-spec :family "Cozette" :weight 'medium :height 120)
       doom-big-font (font-spec :family "Overpass Nerd Font" :height 140)
-      doom-variable-pitch-font (font-spec :family "CozetteVector" :height 1.2))
+      doom-variable-pitch-font (font-spec :family "Overpass Nerd Font" :height 1.2))
 #+END_SRC
 *** Themes
+I use Everforest hard light most of the time, unless I get sick of it then I just use Doom one.
+Right now I'm enjoying doom-nebula-blue. We'll see how long it lasts until I get sick of it too.
 #+BEGIN_SRC emacs-lisp :tangle config.el
-(setq doom-theme 'doom-one)
+(setq doom-theme 'doom-nebula-blue)
 #+END_SRC
 *** Misc Settings
 These are really small things I've added that don't exactly fit anywhere else.
@@ -34,11 +36,11 @@ These are really small things I've added that don't exactly fit anywhere else.
 (setq evil-shift-width 2)
 #+END_SRC
 *** Transparency
-This sets transparency to 90%, so 90% opaque.
+Looks great with wayland. This sets transparency to 80%, so 80% opaque.
 If you want this to work with Xorg, you'll have to configure picom to get the transparency to do anything.
 #+BEGIN_SRC emacs-lisp :tangle config.el
-(set-frame-parameter nil 'alpha-background 90)
-(add-to-list 'default-frame-alist '(alpha-background . 90))
+(set-frame-parameter nil 'alpha-background 80)
+(add-to-list 'default-frame-alist '(alpha-background . 80))
 #+end_src
 *** Banner
 I wanted something pretty to post on unixporn every now and then.
@@ -57,11 +59,11 @@ If you do this correctly and use git to synchronize everything for your doom ema
 *** Org Mode Font Settings
     This sets the font for org mode
 #+BEGIN_SRC emacs-lisp :tangle config.el
-(when (member "Overpass Nerd Font" (font-family-list))
+(when (member "Cozette" (font-family-list))
   (set-face-attribute 'default nil :font "Overpass Nerd Font" :height 100)
-  (set-face-attribute 'fixed-pitch nil :family "CozetteVector"))
-(when (member "CozetteVector" (font-family-list))
-  (set-face-attribute 'variable-pitch nil :family "CozetteVector" :height 1.2))
+  (set-face-attribute 'fixed-pitch nil :family "Cozette"))
+(when (member "Overpass Nerd Font" (font-family-list))
+  (set-face-attribute 'variable-pitch nil :family "Overpass Nerd Font" :height 1.2))
 #+END_SRC
 *** Org Mode General Settings
 **** Bullet Settings
@@ -83,27 +85,25 @@ This setup uses org-modern for custom bullets.
             ("quote" . "❝")
             ("export" . "󰈇"))))
 #+END_SRC
-*** Org Mode Image Download and Detailed Apperance Settings
+*** Org Mode Image Download
 This is necessary to enable pasting in images into org mode.
 +This is built around Flameshot and xclip. If I ever switch to wayland, this will probably break.+
-Note: You DID switch to Wayland and this did break. So this is how you fixed it using grimshot:
+Note: You DID switch to Wayland and this did break. So this is how you fixed it using wl-clipboard:
 #+BEGIN_SRC emacs-lisp :tangle config.el
   (require 'org-download)
   (setq org-download-method 'directory
-        org-download-image-dir "."
+        org-download-image-dir "~/org-notes/.resources"
         org-download-timestamp "org_%Y%m%d-%H%M%S_"
         org-download-heading-lvl nil
-        org-image-actual-width 0.8
+        org-image-actual-width 900
         org-download-screenshot-method
-        "grimshot save area '%s'")
+        "wl-paste --type image/png > %s")
 #+END_SRC
 **** Inline Image Settings
 This makes it so you don't have to manually load images each time.
   #+BEGIN_SRC emacs-lisp :tangle config.el
   ;; Always display inline images
   (setq org-startup-with-inline-images t)
-  ;; Refresh images after pasting with org-download
-  (add-hook 'org-download-after-download-hook 'org-display-inline-images)
   ;; Refresh images after executing code blocks or edits
   (add-hook 'org-babel-after-execute-hook #'org-display-inline-images)
   ;; Refresh images when reverting buffers (e.g. after git pull)
@@ -201,7 +201,7 @@ This will also make TAB behave like normal in code blocks, instead of how we wan
         org-edit-src-content-indentation 0)
 #+END_SRC
 ***** Emphasis Markers
-Markers like / for italics and * for bold are hidden by default, so this makes it hard to edit.
+Markers like / for italics and * for bold are hidden by default, so this make it hard to edit.
 By using the org-appear package we can highlight a mark when we have the cursor over them.
 #+BEGIN_SRC emacs-lisp :tangle config.el
   (use-package org-appear
@@ -295,10 +295,10 @@ If spell-fu highlights every word as misspelled, delete the cache at =~/.config/
                       :background nil
                       :underline '(:style wave :color "goldenrod")))
 #+END_SRC
-*** DONE Fix the spellchecker so it changes with the language, properly
-CLOSED: <2026-06-02 Tue>
+*** TODO Fix the spellchecker so it changes with the language, properly
+SCHEDULED: <2026-02-20 Fri>
 ** Window Settings
-We use this to provide gaps between multiple windows. This is the closest I could get to a proper i3 style look.
+We use this to provide gaps between multiple windows. This is the closest I could get to a proper i3 style look,
 If you have a better version of this, I'm interested.
 
 Common Window Navigation Hotkeys
@@ -377,39 +377,46 @@ Use this to add whatever section you want to the Doom Dashboard
 #+END_SRC
 ** Tramp
 - These settings all come from Core Dumped article, [[https://coredumped.dev/2025/06/18/making-tramp-go-brrrr./][Making TRAMP go Brrrr….]].
-*** SCP Settings
-        - We can add these settings to prevent TRAMP from creating extra files and force it to use SCP directly when moving files.
-          #+BEGIN_SRC emacs-lisp :tangle config.el
-            (setq remote-file-name-inhibit-locks t
-                  tramp-use-scp-direct-remote-copying t
-                  remote-file-name-inhibit-auto-save-visited t)
-          #+END_SRC
-*** Use Direct Async
-- All emacs processes are either synchronous or asynchronous
-- TRAMP used to create a new connection for every async process.
-- Using direct async process makes this much faster.
-  #+BEGIN_SRC emacs-lisp :tangle config.el
-    (connection-local-set-profile-variables
-    'remote-direct-async-process
-    '((tramp-direct-async-process . t)))
+*** Php TRAMP Settings
+- These settings are what you need to get intelephense to work as as an lsp with php.
+- You have to have intelephense installed on your destination machine you're trying to work with.
+- I installed it to ~~/.npm-global~ and made that my default global path for npm in order to get this to work.
+- If you're trying to get this working then utilize the buffers to read the error messages. You can search buffers by using the command =consult buffer= : =SPC b B=
+#+BEGIN_SRC emacs-lisp :tangle config.el
+(after! lsp-php
+  ;; Disable other PHP LSPs over TRAMP
+  (setq lsp-disabled-clients
+        '(iph-tramp phpactor-tramp serenata-tramp php-ls-tramp semgrep-ls-tramp))
 
-    (connection-local-set-profiles
-    '(:application tramp :protocol "scp")
-    'remote-direct-async-process)
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection
+    (lsp-tramp-connection
+     '("/home/railgun/.npm-global/bin/intelephense" "--stdio"))
+    :major-modes '(php-mode)
+    :remote? t
+    :priority 10
+    :server-id 'intelephense-remote)))
 
-    (setq magit-tramp-pipe-stty-settings 'pty)
-  #+END_SRC
-*** LSP
-- Yes, sadly you're going to have to disable LSP over TRAMP.
-- We've tried it ourselves and it just isn't worth the slowdown.
-  - Plus projectile is basically unusable with it.
-  #+BEGIN_SRC emacs-lisp :tangle config.el
-    (defun $lsp-unless-remote ()
-      (if (file-remote-p buffer-file-name)
-          (progn (eldoc-mode -1)
-                (setq-local completion-at-point-functions nil))
-        (lsp)))
-  #+end_src
+(after! tramp
+  ;; Keep PATH minimal to avoid TRAMP slowdowns
+  (setq tramp-remote-path
+        '("/home/railgun/.npm-global/bin"
+          "/usr/bin"
+          "/usr/local/bin"
+          tramp-own-remote-path)))
+#+END_SRC
+*** File Watching Fixes
+- This is specifically for the problem of when using  a project with a ton of files remotely, the LSP can get bogged down trying to file watch too many files.
+- We disable file watching globally for LSPs and then specifically disable it for TRAMP connections.
+- We then set the threshold for 100 as what counts as too many files.
+- Last we set =lsp-remote-path-check= to nill to avoid expensive local/remote validation with binaries.
+#+BEGIN_SRC emacs-lisp :tangle config.el
+(after! lsp-mode
+  (setq lsp-enable-file-watchers nil)
+  (setq lsp-file-watch-threshold 500)) ; Lower the threshold for what counts as "too many files")
+(setq lsp-remote-path-check nil)
+#+END_SRC
 *** Fix Remote Compile
 - This Allows TRAMP to use SSH connection sharing for faster connections.
 - The =compile= command disables this feature so we have to manually turn it back on here.
@@ -505,7 +512,7 @@ The idea of this is to force eww to stay open all the time instead of popping-up
 *** SQL
     - This connects to a remote SQL db on the Raspberry Pi.
     - Tips to get this working:
-      - Enable the port using ufw on your remote server hosting the mysql DB.
+      - Enable the port using ufw.
         - ~sudo ufw allow 3306/tcp~
         - Then check if the port is active using ~sudo ufw status~
       - Change the SQL config to allow connections from a remote host
@@ -517,34 +524,17 @@ The idea of this is to force eww to stay open all the time instead of popping-up
               FLUSH PRIVILEGES;
       #+END_SRC
     - This is what the result should be if you check to make sure the user was created:
-      - [[file:../../.config/doom/General_Doom_Settings/org_20260309-092529_screenshot.png]]
+      - [[file:General_Doom_Settings/org_20260309-092529_screenshot.png]]
     - You can then type the settings in here to connect to whatever you need to:
     #+BEGIN_SRC emacs-lisp :tangle config.el
-      (setq sql-connection-alist
-            '((my-remote-db
-              (sql-product 'mysql)
-              (sql-port 3306)                   ; 5432 for Postgres, 3306 for MySQL
-              (sql-server "192.168.50.179")
-              (sql-user "wordpress")
-              (sql-database "wordpress"))))
+(setq sql-connection-alist
+      '((my-remote-db
+         (sql-product 'mysql)
+         (sql-port 3306)                   ; 5432 for Postgres, 3306 for MySQL
+         (sql-server "192.168.50.179")
+         (sql-user "wordpress")
+         (sql-database "wordpress"))))
     #+end_src
-*** SQL LSP
-- If you don't set the correct =sql-product= then you'll get error messages for correct SQL code.
-- By default sqls is expecting your DB info to be in a json that's in the root of your workspace.
-  - This means in a project sql-test-code, you should have a file in the path of ~.sqls/config.json~ if you have it anywhere else it won't work with this config.
-  - Also ensure that =sqls= is in your path to run this.
-- Note: sqls is still under development so this setup might break in the future.
-    #+BEGIN_SRC emacs-lisp :tangle config.el
-      (after! lsp-mode
-        (setq lsp-disabled-clients '(sql-ls))
-        (setq lsp-sqls-server "/home/railgun/go/bin/sqls")
-        (add-to-list 'exec-path "/home/railgun/go/bin")
-        (setq lsp-sqls-workspace-config-path "workspace")
-        (require 'lsp-sqls))
-      (setq sql-product 'mariadb) ;; or 'mysql
-      ;; Ensure lsp starts automatically for SQL files
-      (add-hook 'sql-mode-hook #'lsp!)
-     #+END_SRC
 ** Debugging
 #+BEGIN_SRC emacs-lisp :tangle config.el
  (defun profiler-report-expand-all ()
@@ -579,7 +569,7 @@ Works in the Profiler and Transients."
     (apply #'helpful-symbol args))
 #+END_SRC
 ** Hotkeys
-We save all the hotkeys here so there's in one place.
+We save all the hotkeys here so they're in one place.
 I really prefer leader key hotkeys for Emacs over using Control or Win key.
 Be careful when you're messing with this so you don't overwrite the default hotkeys.
 
@@ -588,7 +578,6 @@ Custom Hotkeys
 - Paste in screenshot: ~SPC m c p~
 - Insert Xournal figure: ~SPC m c x~
 - Display all inline images: ~SPC m d i~
-- Change spell-check dictionary: ~SPC t d~
 
   Common Hotkeys:
 - Increase text size: ~C-x C-+~
@@ -619,29 +608,25 @@ I use magit all the time and there's way too many hotkeys to memorize even thoug
        :desc "Mark Directory" "x" #'dired-mark)
       (:prefix-map ("x" . "home")
        :desc "Switch to dashboard" "h" #'+doom-dashboard/open)
-       ;; Toggle / switch settings
-      (:prefix-map ("t" . "toggle")
-       :desc "Switch spell dictionary" "d" #'ispell-change-dictionary)
-       ;; Org mode
+      ;; Org mode
       (:prefix-map ("m" . "org")
-        ;; Capture / insert
-        (:prefix ("c" . "capture")
-         :desc "Paste org screenshot" "p" #'org-download-screenshot
-         :desc "Insert Xournal figure" "x" #'org-xopp-new-figure)
-        ;; Display / visuals
-        (:prefix ("d" . "display")
-         :desc "Display inline images" "i" #'org-display-inline-images)))
+       ;; Capture / insert
+       (:prefix ("c" . "capture")
+        :desc "Paste org screenshot" "p" #'org-download-screenshot
+        :desc "Insert Xournal figure" "x" #'org-xopp-new-figure)
+       ;; Display / visuals
+       (:prefix ("d" . "display")
+        :desc "Display inline images" "i" #'org-display-inline-images)))
 #+END_SRC
 * Packages
 ** Introduction
 This is my doom emacs packages config.
-This is the Linux desktop config.
+It's slightly edited for Mac compared to my general linux config.
 #+BEGIN_SRC emacs-lisp :tangle packages.el
 ;; -*- no-byte-compile: t; -*-
 ;;; $DOOMDIR/packages.el
 #+END_SRC
 ** Themes
-*** Everforest
 I can't quit Everforest
 #+BEGIN_SRC emacs-lisp :tangle packages.el
 (package! everforest :recipe (:repo "https://github.com/theorytoe/everforest-emacs.git") :pin "ba61a881b5d57810eef76baae01c951d1e6c2ceb")
@@ -686,8 +671,7 @@ Provides Xournal++ support for Doom Emacs
 #+BEGIN_SRC emacs-lisp :tangle packages.el
 (package! org-xopp
 :recipe (:host github :repo "mahmoodsh36/org-xopp"
-:files (:defaults "*.sh"))
-:pin "cef73dd97d39a70dde8fbe5b5eeab3c42fed8f97")
+:files (:defaults "*.sh")))
 #+END_SRC
 *** Tools
 * Init
@@ -703,15 +687,15 @@ No specialized input or layout modules are enabled here. I just stick with stand
        ;;layout            ; auie,ctsrnm is the superior home row
 #+end_src
 ** Completion
-I use Corfu and ivy for in-buffer completion.
+I use Company, Corfu, Ivy, and Vertico for in-buffer completion.
 #+begin_src emacs-lisp :tangle no
        :completion
-       company           ; the ultimate code completion backend
+       ;;company           ; the ultimate code completion backend
        (corfu +orderless)  ; complete with cap(f), cape and a flying feather!
        ;;helm              ; the *other* search engine for love and life
        ;;ido               ; the other *other* search engine...
-       ivy               ; a search engine for love and life
-       ;;vertico           ; the search engine of the future
+       ;;ivy               ; a search engine for love and life
+       vertico           ; the search engine of the future
 #+end_src
 ** User Interface
 Look and feel of Doom Emacs. Nothing too special. Be careful what you enable because you can get conflicts.
@@ -898,7 +882,7 @@ Covers literate configs. I'm a big fan of them if you haven't noticed by now.
  ;;helm
  ;;ido
  ivy
- ;;vertico
+ vertico
 
  :ui
  ;;deft

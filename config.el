@@ -1,26 +1,26 @@
-(setq doom-font (font-spec :family "Overpass Nerd Font" :height 120)
+(setq doom-font (font-spec :family "Cozette" :weight 'medium :height 120)
       doom-big-font (font-spec :family "Overpass Nerd Font" :height 140)
-      doom-variable-pitch-font (font-spec :family "CozetteVector" :height 1.2))
+      doom-variable-pitch-font (font-spec :family "Overpass Nerd Font" :height 1.2))
 
-(setq doom-theme 'doom-one)
+(setq doom-theme 'doom-nebula-blue)
 
 ;; Got tired of seeing line numbers in org mode, but you don't have to set this if you don't care.
 (setq display-line-numbers-type t)
 ;; Set tabs to only 2 everytime you use the '>' key.
 (setq evil-shift-width 2)
 
-(set-frame-parameter nil 'alpha-background 90)
-(add-to-list 'default-frame-alist '(alpha-background . 90))
+(set-frame-parameter nil 'alpha-background 80)
+(add-to-list 'default-frame-alist '(alpha-background . 80))
 
 (setq fancy-splash-image (concat doom-user-dir "M-x_butterfly.png"))
 
 (setq org-directory "~/Dropbox/org-notes/")
 
-(when (member "Overpass Nerd Font" (font-family-list))
+(when (member "Cozette" (font-family-list))
   (set-face-attribute 'default nil :font "Overpass Nerd Font" :height 100)
-  (set-face-attribute 'fixed-pitch nil :family "CozetteVector"))
-(when (member "CozetteVector" (font-family-list))
-  (set-face-attribute 'variable-pitch nil :family "CozetteVector" :height 1.2))
+  (set-face-attribute 'fixed-pitch nil :family "Cozette" :weight 'medium))
+(when (member "Overpass Nerd Font" (font-family-list))
+  (set-face-attribute 'variable-pitch nil :family "Overpass Nerd Font" :height 1.2))
 
 (after! org
   (global-org-modern-mode)
@@ -39,17 +39,15 @@
 
 (require 'org-download)
 (setq org-download-method 'directory
-      org-download-image-dir "."
+      org-download-image-dir "~/org-notes/.resources"
       org-download-timestamp "org_%Y%m%d-%H%M%S_"
       org-download-heading-lvl nil
-      org-image-actual-width 0.8
-        org-download-screenshot-method
-        "grimshot save area '%s'")
+      org-image-actual-width 900
+      org-download-screenshot-method
+      "wl-paste --type image/png > %s")
 
 ;; Always display inline images
 (setq org-startup-with-inline-images t)
-;; Refresh images after pasting with org-download
-(add-hook 'org-download-after-download-hook 'org-display-inline-images)
 ;; Refresh images after executing code blocks or edits
 (add-hook 'org-babel-after-execute-hook #'org-display-inline-images)
 ;; Refresh images when reverting buffers (e.g. after git pull)
@@ -186,8 +184,7 @@
 
 (after! ispell
   (setq ispell-program-name "aspell"
-        ispell-dictionary "en"
-        ispell-personal-dictionary (concat doom-user-dir "personal-dict.txt")))
+        ispell-dictionary "en"))
 
 (after! spell-fu
   (setq spell-fu-idle-delay 0.5)
@@ -247,25 +244,33 @@
    (nerd-icons-octicon "nf-oct-book" :face 'doom-dashboard-menu-title)
    :action doom/help)))
 
-(setq remote-file-name-inhibit-locks t
-      tramp-use-scp-direct-remote-copying t
-      remote-file-name-inhibit-auto-save-visited t)
+(after! lsp-php
+  ;; Disable other PHP LSPs over TRAMP
+  (setq lsp-disabled-clients
+        '(iph-tramp phpactor-tramp serenata-tramp php-ls-tramp semgrep-ls-tramp))
 
-(connection-local-set-profile-variables
-'remote-direct-async-process
-'((tramp-direct-async-process . t)))
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection
+    (lsp-tramp-connection
+     '("/home/railgun/.npm-global/bin/intelephense" "--stdio"))
+    :major-modes '(php-mode)
+    :remote? t
+    :priority 10
+    :server-id 'intelephense-remote)))
 
-(connection-local-set-profiles
-'(:application tramp :protocol "scp")
-'remote-direct-async-process)
+(after! tramp
+  ;; Keep PATH minimal to avoid TRAMP slowdowns
+  (setq tramp-remote-path
+        '("/home/railgun/.npm-global/bin"
+          "/usr/bin"
+          "/usr/local/bin"
+          tramp-own-remote-path)))
 
-(setq magit-tramp-pipe-stty-settings 'pty)
-
-(defun $lsp-unless-remote ()
-  (if (file-remote-p buffer-file-name)
-      (progn (eldoc-mode -1)
-            (setq-local completion-at-point-functions nil))
-    (lsp)))
+(after! lsp-mode
+  (setq lsp-enable-file-watchers nil)
+  (setq lsp-file-watch-threshold 500)) ; Lower the threshold for what counts as "too many files")
+(setq lsp-remote-path-check nil)
 
 (with-eval-after-load 'tramp
   (with-eval-after-load 'compile
@@ -329,21 +334,11 @@
 
 (setq sql-connection-alist
       '((my-remote-db
-        (sql-product 'mysql)
-        (sql-port 3306)                   ; 5432 for Postgres, 3306 for MySQL
-        (sql-server "192.168.50.179")
-        (sql-user "wordpress")
-        (sql-database "wordpress"))))
-
-(after! lsp-mode
-  (setq lsp-disabled-clients '(sql-ls))
-  (setq lsp-sqls-server "/home/railgun/go/bin/sqls")
-  (add-to-list 'exec-path "/home/railgun/go/bin")
-  (setq lsp-sqls-workspace-config-path "workspace")
-  (require 'lsp-sqls))
-(setq sql-product 'mariadb) ;; or 'mysql
-;; Ensure lsp starts automatically for SQL files
-(add-hook 'sql-mode-hook #'lsp!)
+         (sql-product 'mysql)
+         (sql-port 3306)                   ; 5432 for Postgres, 3306 for MySQL
+         (sql-server "192.168.50.179")
+         (sql-user "wordpress")
+         (sql-database "wordpress"))))
 
 (defun profiler-report-expand-all ()
    "Expand all entries in the profiler report recursively."
@@ -389,9 +384,6 @@ Works in the Profiler and Transients."
        :desc "Mark Directory" "x" #'dired-mark)
       (:prefix-map ("x" . "home")
        :desc "Switch to dashboard" "h" #'+doom-dashboard/open)
-      ;; Toggle / switch settings
-      (:prefix-map ("t" . "toggle")
-       :desc "Switch spell dictionary" "d" #'ispell-change-dictionary)
       ;; Org mode
       (:prefix-map ("m" . "org")
        ;; Capture / insert
