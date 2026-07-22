@@ -92,7 +92,7 @@ Note: You DID switch to Wayland and this did break. So this is how you fixed it 
 #+BEGIN_SRC emacs-lisp :tangle config.el
   (require 'org-download)
   (setq org-download-method 'directory
-        org-download-image-dir "~/org-notes/.resources"
+        org-download-image-dir "~/Dropbox/org-notes/.resources"
         org-download-timestamp "org_%Y%m%d-%H%M%S_"
         org-download-heading-lvl nil
         org-image-actual-width 900
@@ -333,9 +333,9 @@ SCHEDULED: <2026-02-15 2200>
    Org agenda is kinda complicated. We essentially only want to read from two files, =agenda.org= and =todoist.org=. My idea is =agenda.org= covers regular events I want on the calendar, and =todoist.org= will cover todo lists. I want to place all my agenda files in one folder so if I want to make a separate agenda I can.
    #+BEGIN_SRC emacs-lisp :tangle config.el
    (after! org
-     (setq org-directory "~/org-notes/"
-           org-agenda-files
-           '("~/Dropbox/org-notes/")))
+      (setq org-directory "~/Dropbox/org-notes/"
+            org-agenda-files
+            '("~/Dropbox/org-notes/")))
    #+END_SRC
 ** Dashboard
 Use this to add whatever section you want to the Doom Dashboard

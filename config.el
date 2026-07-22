@@ -39,7 +39,7 @@
 
 (require 'org-download)
 (setq org-download-method 'directory
-      org-download-image-dir "~/org-notes/.resources"
+      org-download-image-dir "~/Dropbox/org-notes/.resources"
       org-download-timestamp "org_%Y%m%d-%H%M%S_"
       org-download-heading-lvl nil
       org-image-actual-width 900
@@ -205,7 +205,7 @@
 
 
 (after! org
-  (setq org-directory "~/org-notes/"
+  (setq org-directory "~/Dropbox/org-notes/"
         org-agenda-files
         '("~/Dropbox/org-notes/")))
 
