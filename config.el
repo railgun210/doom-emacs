@@ -42,9 +42,10 @@
       org-download-image-dir "~/Dropbox/org-notes/.resources"
       org-download-timestamp "org_%Y%m%d-%H%M%S_"
       org-download-heading-lvl nil
-      org-image-actual-width 900
+      org-image-actual-width 400
       org-download-screenshot-method
       "wl-paste --type image/png > %s")
+(setq org-download-link-format "[[file:%s]]")
 
 ;; Always display inline images
 (setq org-startup-with-inline-images t)
